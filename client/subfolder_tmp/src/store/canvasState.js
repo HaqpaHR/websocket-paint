@@ -4,10 +4,27 @@ class CanvasState {
   canvas = null;
   undoList = [];
   redoList = [];
+  username = '';
+  socket = null;
+  sessionId = null;
+
 
   constructor() {
     makeAutoObservable(this);
   }
+
+  setSocket(socket) {
+    this.socket = socket
+  }
+
+  setSessionId(id) {
+    this.sessionId = id
+  }
+
+  setUsername(username) {
+    this.username = username;
+  }
+
   setCanvas(canvas) {
     this.canvas = canvas;
   }

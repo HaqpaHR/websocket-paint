@@ -1,15 +1,22 @@
-import './styles/app.scss';
-import Toolbar from "./component/Toolbar";
-import SettingBar from "./component/SettingBar";
-import Canvas from "./component/Canvas";
+import "./styles/app.scss";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import Home from "./pages/Home";
 
 function App() {
   return (
-    <div className="app">
-      <Toolbar/>
-      <SettingBar/>
-      <Canvas/>
-    </div>
+    <BrowserRouter>
+      <div className="app">
+        <Routes>
+          <Route path="/:id" element={
+              <Home/>
+          }/>
+          <Route
+            path="*"
+            element={<Navigate to={`f${(+new Date()).toString(16)}`} />}
+          />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 
