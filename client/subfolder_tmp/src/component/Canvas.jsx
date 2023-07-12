@@ -6,6 +6,7 @@ import toolState from "../store/toolState";
 import Brush from "../tools/Brush";
 import { Button, InputGroup, Modal, Form } from "react-bootstrap";
 import { useParams } from "react-router-dom";
+import Cube from "../tools/Cube";
 
 const Canvas = () => {
   const canvasRef = useRef();
@@ -15,16 +16,16 @@ const Canvas = () => {
 
   useEffect(() => {
     canvasState.setCanvas(canvasRef.current);
-    toolState.setTool(new Brush(canvasRef.current));
   }, []);
 
   useEffect(() => {
     if (canvasState.username) {
-      const socket = new WebSocket("ws://localhost:5000");
+      const socket = new WebSocket(`ws://localhost:5000/`);
       canvasState.setSocket(socket);
-      canvasState.setSessionId(params.id)
+      canvasState.setSessionId(params.id);
+      toolState.setTool(new Brush(canvasRef.current, socket, params.id));
       socket.onopen = () => {
-        console.log("You are connected");
+        console.log("Подключение установлено");
         socket.send(
           JSON.stringify({
             id: params.id,
@@ -34,11 +35,35 @@ const Canvas = () => {
         );
       };
       socket.onmessage = (event) => {
-          let msg = JSON.parse(event.data);
-
-      }
+        let msg = JSON.parse(event.data);
+        console.log(msg);
+        switch (msg.method) {
+          case "connection":
+            console.log(`пользователь ${msg.username} присоединился`);
+            break;
+          case "draw":
+            drawHandler(msg);
+            break;
+        }
+      };
     }
   }, [canvasState.username]);
+
+  const drawHandler = (msg) => {
+    const figure = msg.figure;
+    const ctx = canvasRef.current.getContext("2d");
+    switch (figure.type) {
+      case "brush":
+        Brush.draw(ctx, figure.x, figure.y);
+        break;
+      case "cube":
+        Cube.staticDraw(ctx, figure.x, figure.y, figure.width, figure.height, figure.color);
+        break;
+      case "finish":
+        ctx.beginPath();
+        break;
+    }
+  };
 
   const mouseDownHandler = () => {
     canvasState.pushToUndo(canvasRef.current.toDataURL());

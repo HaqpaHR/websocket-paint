@@ -7,6 +7,7 @@ class ToolState {
     }
     setTool(tool) {
         this.tool = tool
+        console.log(this.tool)
     }
 
     setFillColor(color) {
